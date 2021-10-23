@@ -1,5 +1,5 @@
 # Set up (after cd into project directory):
-## create virtual environment (prerequisite: must have python installed)
+## create and activate virtual environment (prerequisite: must have python installed)
     * python3 -m venv venv
     * venv\Scripts\activate
 ## install dependencies in virtual environment (cmd/powershell)
