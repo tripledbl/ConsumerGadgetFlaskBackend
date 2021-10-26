@@ -30,3 +30,5 @@ def create_app(test_config=None):
         return 'Hello World from ConsumerGadget Backend!'
 
     return app
+
+app = create_app()
