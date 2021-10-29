@@ -3,6 +3,7 @@ import os
 from userRoutes import *
 from flask import Flask
 
+
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
@@ -32,5 +33,6 @@ def create_app(test_config=None):
     app.register_blueprint(userRoutes)
 
     return app
+
 
 app = create_app()
