@@ -4,12 +4,8 @@ from database import mongo_client
 
 userRoutes = Blueprint('userRoutes', __name__)
 
-@userRoutes.route('/users')
-def users():
-    return 'hello from users'
-
-@userRoutes.route('/add_user')
-def add_user():
+@userRoutes.route('/user/<string:name>', methods=['POST'])
+def user(name):
     user_collection = mongo_client.db.Users
-    user_collection.insert_one({'Name': "haha", 'Username': "lmao"})
+    user_collection.insert_one({'Name': name, 'Username': "lmao"})
     return jsonify(message="success")
