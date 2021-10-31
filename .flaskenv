@@ -1,0 +1,2 @@
+FLASK_APP=predictant
+FLASK_ENV=development
