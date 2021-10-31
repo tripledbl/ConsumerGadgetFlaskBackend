@@ -1,7 +1,7 @@
 import os
-from userRoutes import *
+from routes.userRoutes import *
 from flask import Flask
-from database import mongo_client
+from extensions import mongo_client
 
 
 def create_app(test_config=None):

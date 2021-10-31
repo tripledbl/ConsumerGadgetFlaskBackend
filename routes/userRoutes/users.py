@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask import jsonify
 from flask import request
-from database import mongo_client
+from extensions import mongo_client
 
 userRoutes = Blueprint('userRoutes', __name__)
 
