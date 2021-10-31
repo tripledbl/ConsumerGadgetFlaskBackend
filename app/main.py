@@ -1,38 +1,32 @@
 import os
-
 from userRoutes import *
 from flask import Flask
+from database import mongo_client
 
 
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
-    app.config.from_mapping(
-        SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
-    )
+    
+    # configure MongoDB database parameters
+    app.config['MONGO_URI'] = os.environ.get('MONGO_URI')
+    app.config['FLASK_ENV'] = os.environ.get('FLASK_ENV')   
 
-    if test_config is None:
-        # load the instance config, if it exists, when not testing
-        app.config.from_pyfile('config.py', silent=True)
-    else:
-        # load the test config if passed in
-        app.config.from_mapping(test_config)
-
-    # ensure the instance folder exists
-    try:
-        os.makedirs(app.instance_path)
-    except OSError:
-        pass
+    mongo_client.init_app(app)
 
     # a simple page that says hello
     @app.route('/')
     def hello():
         return 'Hello World from ConsumerGadget Backend!'
 
-    app.register_blueprint(userRoutes)
+    # register all blueprints
+    register_blueprints(app)
 
     return app
+
+
+def register_blueprints(app):
+    app.register_blueprint(userRoutes)
 
 
 app = create_app()
