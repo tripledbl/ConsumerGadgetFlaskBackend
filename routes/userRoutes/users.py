@@ -24,3 +24,19 @@ def getUser(userId):
     user = user_collection.find_one({'id': userId})
     # have to use json_util because the ObjectId in the user object cannot be directly turned to json
     return json.loads(json_util.dumps(user))
+
+# Update the email address of a user with the given ID
+@userRoutes.route('/user/<string:userId>', methods=['PUT'])
+def editUser(userId):
+    user_collection = mongo_client.db.Users
+    newEmail = request.form.get('email')
+    # use 'id' instead of '_id' temporarily
+    user = user_collection.replace_one({'id': userId}, {'id': userId, 'email': newEmail, 'models': []})
+    return json.loads(json_util.dumps(user.raw_result))
+
+# Delete the user with the given ID
+@userRoutes.route('/user/<string:userId>', methods=['DELETE'])
+def deleteUser(userId):
+    user_collection = mongo_client.db.Users
+    user = user_collection.delete_one({'id': userId})
+    return json.loads(json_util.dumps(user.raw_result))
