@@ -15,7 +15,7 @@ def getSquareOAuth():
 
 # obtainToken
 # inputs:
-#       token: a properly formatted OAuth token that can be used to call the Square's ObtainToken endpoint
+#   - token: a properly formatted OAuth token that can be used to call the Square's ObtainToken endpoint
 # output: the token returned by Square's ObtainToken endpoint
 def obtainToken(token):
     # set up inputs to obtainToken endpoint
