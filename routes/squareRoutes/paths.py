@@ -1,0 +1,1 @@
+SQUARE_OBTAIN_TOKEN = 'https://connect.squareupsandbox.com/oauth2/token'
