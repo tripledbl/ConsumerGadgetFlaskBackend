@@ -1,5 +1,6 @@
 from flask import Blueprint, request, current_app
 import requests
+import json
 from .paths import SQUARE_OBTAIN_TOKEN
 
 squareRoutes = Blueprint('squareRoutes', __name__)
@@ -9,9 +10,10 @@ squareRoutes = Blueprint('squareRoutes', __name__)
 def getSquareOAuth():
     res = request.values
     code = res.get('code')
-    apiRes = obtainToken(code)
-    print(apiRes.text)
-    return apiRes.json()
+    # get the token from the square OAuth endpoint
+    api_res = obtainToken(code)
+    print(api_res)
+    return api_res
 
 # obtainToken
 # inputs:
@@ -22,14 +24,18 @@ def obtainToken(token):
     client_id = current_app.config['SQUARE_CLIENT_ID']
     client_secret = current_app.config['SQUARE_CLIENT_SECRET']
     grant_type = 'authorization_code'
-    data = {
-        "client_id": client_id,
-        "client_secret": client_secret,
-        "code": token,
-        "grant_type": grant_type
-    }
 
     # make API call
-    res = requests.post(SQUARE_OBTAIN_TOKEN, data=data)
+    json_res = requests.post(SQUARE_OBTAIN_TOKEN,
+        data={
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "code": token,
+            "grant_type": grant_type
+        }
+    )
 
-    return res
+    res = json.loads(json_res.text)
+    access_token = res['access_token']
+
+    return access_token
