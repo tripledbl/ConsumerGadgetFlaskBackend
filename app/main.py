@@ -14,6 +14,7 @@ def create_app(test_config=None):
     app.config['FLASK_ENV'] = os.environ.get('FLASK_ENV')  
     app.config['SQUARE_CLIENT_ID'] = os.environ.get('SQUARE_CLIENT_ID')
     app.config['SQUARE_CLIENT_SECRET'] = os.environ.get('SQUARE_CLIENT_SECRET')
+    app.config['CRABTREE_USER_ID'] = os.environ.get('CRABTREE_USER_ID')
 
     mongo_client.init_app(app)
 

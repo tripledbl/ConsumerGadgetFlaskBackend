@@ -1,7 +1,9 @@
 from flask import Blueprint, request, current_app
-import datetime
+from extensions import mongo_client
 from square.client import Client
+from bson.objectid import ObjectId
 from .config import *
+import datetime
 
 squareRoutes = Blueprint('squareRoutes', __name__)
 
@@ -10,8 +12,26 @@ squareRoutes = Blueprint('squareRoutes', __name__)
 def getSquareOAuth():
     res = request.values
     code = res.get('code')
+
     # get the token from the square OAuth endpoint
     api_res = obtainToken(code)
+
+    # create database client to store the keys
+    keystore_collection = mongo_client.db.KeyStore
+
+    # insert keys into database
+    access_token = api_res['access_token']
+    refresh_token = api_res['refresh_token']
+    keystore_collection.replace_one(
+        {
+            '_id': ObjectId(current_app.config['CRABTREE_USER_ID']),
+        },
+        {
+            'square_access_token': access_token,
+            'square_refresh_token': refresh_token
+        }
+    )
+
     print(api_res)
     return api_res
 
@@ -32,6 +52,7 @@ def obtainToken(token):
     client_secret = current_app.config['SQUARE_CLIENT_SECRET']
     grant_type = 'authorization_code'
 
+    # get the tokens from the square authentication API
     result = client.o_auth.obtain_token(
         body = {
             "client_id": client_id,
@@ -46,13 +67,7 @@ def obtainToken(token):
     elif result.is_error():
         print(result.errors)
 
-    # retrieve the access token
-    token = result.body['access_token']
-
-    # test the orders API
-    orders = retrieveSquareOrdersData(token)
-
-    return orders
+    return result.body
 
 # retrieveSquareOrdersData
 # inputs:
@@ -92,44 +107,6 @@ def retrieveSquareOrdersData(access_token):
                 }
             }
         }
-    )
-
-    if result.is_success():
-        print(result.body)
-    elif result.is_error():
-        print(result.errors)
-
-    return result.body
-
-# createOrder
-# inputs: an access token that allows access to square APIs
-# outputs: creates a new order in the square database
-def createOrder(access_token):
-
-    # create square sdk client
-    client = Client(
-        access_token=access_token,
-        environment='sandbox'
-    )
-
-    result = client.orders.create_order(
-    body = {
-        "order": {
-            "location_id": LOCATION_ID,
-            "reference_id": "my-order-001",
-            "line_items": [
-                {
-                    "name": "New York Strip Steak",
-                    "quantity": "1",
-                    "base_price_money": {
-                        "amount": 1599,
-                        "currency": "USD"
-                    }
-                },
-            ],
-        },
-        "idempotency_key": "8193148c-9586-11e6-99f9-28cfe92138cf"
-    }
     )
 
     if result.is_success():
