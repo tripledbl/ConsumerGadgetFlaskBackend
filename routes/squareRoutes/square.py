@@ -8,6 +8,7 @@ import datetime
 squareRoutes = Blueprint('squareRoutes', __name__)
 
 # get Square OAuth token
+# this endpoint is called by square APIs when the square account owner accepts the square integrations with our application
 @squareRoutes.route('/squareOAuth', methods=['GET'])
 def getSquareOAuth():
     res = request.values
@@ -32,7 +33,6 @@ def getSquareOAuth():
         }
     )
 
-    print(api_res)
     return api_res
 
 # obtainToken
@@ -70,10 +70,14 @@ def obtainToken(token):
     return result.body
 
 # retrieveSquareOrdersData
-# inputs:
-#   - access_token: a token that allows the application access to square data
+# inputs: none
 # output: a json dataset of the data from the square orders API
-def retrieveSquareOrdersData(access_token):
+def retrieveSquareOrdersData(user_id):
+
+    # get database access to get the square access token
+    keystore_collection = mongo_client.db.KeyStore
+    key = keystore_collection.find_one({'_id': ObjectId(user_id)})
+    access_token = key['square_access_token']
 
     # create square sdk client
     client = Client(
@@ -86,26 +90,7 @@ def retrieveSquareOrdersData(access_token):
         body = {
             "location_ids": [
                 LOCATION_ID
-            ],
-            "query": {
-                "filter": {
-                    "state_filter": {
-                        "states": [
-                            "COMPLETED"
-                        ]
-                    },
-                    "date_time_filter": {
-                        "closed_at": {
-                            "start_at": "2018-03-03",
-                            "end_at": datetime.datetime.now()
-                        }
-                    }
-                },
-                "sort": {
-                    "sort_field": "CLOSED_AT",
-                    "sort_order": "DESC"
-                }
-            }
+            ]
         }
     )
 
