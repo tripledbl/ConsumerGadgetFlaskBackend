@@ -3,7 +3,6 @@ from extensions import mongo_client
 from square.client import Client
 from bson.objectid import ObjectId
 from .config import *
-import datetime
 
 squareRoutes = Blueprint('squareRoutes', __name__)
 
@@ -44,7 +43,7 @@ def obtainToken(token):
     # create square sdk client
     client = Client(
         access_token=token,
-        environment='sandbox'
+        environment='production'
     )
 
     # set up inputs to obtainToken endpoint
@@ -77,11 +76,11 @@ def retrieveSquareOrdersData(user_id):
     # get database access to get the square access token
     keystore_collection = mongo_client.db.KeyStore
     key = keystore_collection.find_one({'_id': ObjectId(user_id)})
-    access_token = key['square_access_token']
+    user_access_token = key['square_access_token']
 
     # create square sdk client
     client = Client(
-        access_token=access_token,
+        access_token=user_access_token,
         environment='sandbox'
     )
 
