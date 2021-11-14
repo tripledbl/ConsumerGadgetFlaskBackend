@@ -1,7 +1,5 @@
 import json
-from flask import Blueprint
-from flask import jsonify
-from flask import request
+from flask import Blueprint, jsonify, request
 from bson import json_util
 from bson.objectid import ObjectId
 from extensions import mongo_client
