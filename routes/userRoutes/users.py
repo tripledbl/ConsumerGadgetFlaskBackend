@@ -6,9 +6,10 @@ from extensions import mongo_client
 
 userRoutes = Blueprint('userRoutes', __name__)
 
+
 # Create a new user
 @userRoutes.route('/user', methods=['POST'])
-def createUser():
+def _create_user():
     user_collection = mongo_client.db.Users
     email = request.form.get('email')
     # subject to change, must make this id the same as the ID passed by Auth0 from the frontend
@@ -16,26 +17,29 @@ def createUser():
     user_collection.insert_one({'_id': ObjectId(id), 'email': email, 'models': []})
     return jsonify(message="success")
 
+
 # Get a user with the given ID
-@userRoutes.route('/user/<string:userId>', methods=['GET'])
-def getUser(userId):
+@userRoutes.route('/user/<user_id>', methods=['GET'])
+def _get_user(user_id):
     user_collection = mongo_client.db.Users
-    user = user_collection.find_one({'_id': ObjectId(userId)})
+    user = user_collection.find_one({'_id': ObjectId(user_id)})
     # have to use json_util because the ObjectId in the user object cannot be directly turned to json
     return json.loads(json_util.dumps(user))
 
+
 # Update the email address of a user with the given ID
-@userRoutes.route('/user/<string:userId>', methods=['PUT'])
-def editUser(userId):
+@userRoutes.route('/user/<user_id>', methods=['PUT'])
+def _edit_user(user_id):
     user_collection = mongo_client.db.Users
-    newEmail = request.form.get('email')
+    new_email = request.form.get('email')
     # use 'id' instead of '_id' temporarily
-    user = user_collection.replace_one({'_id': ObjectId(userId)}, {'email': newEmail, 'models': []})
+    user = user_collection.replace_one({'_id': ObjectId(user_id)}, {'email': new_email, 'models': []})
     return json.loads(json_util.dumps(user.raw_result))
 
+
 # Delete the user with the given ID
-@userRoutes.route('/user/<string:userId>', methods=['DELETE'])
-def deleteUser(userId):
+@userRoutes.route('/user/<user_id>', methods=['DELETE'])
+def _delete_user(user_id):
     user_collection = mongo_client.db.Users
-    user = user_collection.delete_one({'_id': ObjectId(userId)})
+    user = user_collection.delete_one({'_id': ObjectId(user_id)})
     return json.loads(json_util.dumps(user.raw_result))
