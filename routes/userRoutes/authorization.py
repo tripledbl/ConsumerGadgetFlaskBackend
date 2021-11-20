@@ -1,15 +1,17 @@
-import app
 from extensions import *
 import json
-from six.moves.urllib.request import urlopen
+import json
 from functools import wraps
-from flask import Flask, request, jsonify, _request_ctx_stack
-from flask_cors import cross_origin
+
+from flask import request, jsonify, _request_ctx_stack
 from jose import jwt
+from six.moves.urllib.request import urlopen
+
+from extensions import *
 
 userRoutes = Blueprint('userRoutes', __name__)
 
-AUTH0_DOMAIN = '127.0.0.1:5000'
+AUTH0_DOMAIN = 'predictant.us.auth0.com'
 API_AUDIENCE = 'http://127.0.0.1:5000/user'
 ALGORITHMS = ["RS256"]
 
@@ -63,7 +65,11 @@ def requires_auth(f):
         token = get_token_auth_header()
         jsonurl = urlopen("http://" + AUTH0_DOMAIN + "/.well-known/jwks.json")
         jwks = json.loads(jsonurl.read())
-        unverified_header = jwt.get_unverified_header(token)
+        try:
+            unverified_header = jwt.get_unverified_header(token)
+        except:
+            raise AuthError({"code": "invalid_header",
+                             "description": "Invalid Token"}, 401)
         rsa_key = {}
         for key in jwks["keys"]:
             if key["kid"] == unverified_header["kid"]:
@@ -103,25 +109,3 @@ def requires_auth(f):
                          "description": "Unable to find appropriate key"}, 401)
 
     return decorated
-
-
-# @userRoutes.route('/user/<user_id>', methods=['GET'])
-# @cross_origin(headers=["Content-Type", "Authorization"])
-# @requires_auth
-# def _get_user(user_id):
-#     user_collection = mongo_client.db.Users
-#     user = user_collection.find_one({'_id': ObjectId(user_id)})
-#     # have to use json_util because the ObjectId in the user object cannot be directly turned to json
-#     return json.loads(json_util.dumps(user))
-
-
-@userRoutes.route('/user', methods=['POST'])
-@cross_origin(headers=["Content-Type", "Authorization"])
-@requires_auth
-def _create_user():
-    user_collection = mongo_client.db.Users
-    email = request.form.get('email')
-    # subject to change, must make this id the same as the ID passed by Auth0 from the frontend
-    id = request.form.get('id')
-    user_collection.insert_one({'_id': ObjectId(id), 'email': email, 'models': []})
-    return jsonify(message="success")
