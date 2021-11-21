@@ -1,8 +1,7 @@
 import os
 from routes.userRoutes import *
 from routes.squareRoutes import *
-from extensions import Flask
-from extensions import mongo_client
+from extensions import Flask, mongo_client
 
 
 def create_app(test_config=None):
