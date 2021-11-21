@@ -1,8 +1,8 @@
+import os
 import json
 from flask_pymongo import PyMongo
-from flask import Blueprint, jsonify, request
+from flask import Flask, Blueprint, jsonify, request, current_app
 from bson import json_util
 from bson.objectid import ObjectId
-from flask import Flask
 
 mongo_client = PyMongo()

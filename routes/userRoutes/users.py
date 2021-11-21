@@ -7,11 +7,14 @@ userRoutes = Blueprint('userRoutes', __name__)
 # Error handler
 userRoutes.register_error_handler(AuthError, handle_auth_error)
 
+# Assign api_audience
+user_api_audience = os.environ.get('USER_API_AUDIENCE')
+
 
 # Create a new user
 @userRoutes.route('/user', methods=['POST'])
 @cross_origin(headers=["Content-Type", "Authorization"])
-@requires_auth(audience="http://127.0.0.1:5000/user")
+@requires_auth(audience=user_api_audience)
 def _create_user():
     user_collection = mongo_client.db.Users
     email = request.form.get('email')
@@ -24,7 +27,7 @@ def _create_user():
 # Get a user with the given ID
 @userRoutes.route('/user/<user_id>', methods=['GET'])
 @cross_origin(headers=["Content-Type", "Authorization"])
-@requires_auth(audience="http://127.0.0.1:5000/user")
+@requires_auth(audience=user_api_audience)
 def _get_user(user_id):
     user_collection = mongo_client.db.Users
     user = user_collection.find_one({'_id': ObjectId(user_id)})
@@ -35,7 +38,7 @@ def _get_user(user_id):
 # Update the email address of a user with the given ID
 @userRoutes.route('/user/<user_id>', methods=['PUT'])
 @cross_origin(headers=["Content-Type", "Authorization"])
-@requires_auth(audience="http://127.0.0.1:5000/user")
+@requires_auth(audience=user_api_audience)
 def _edit_user(user_id):
     user_collection = mongo_client.db.Users
     new_email = request.form.get('email')
@@ -47,7 +50,7 @@ def _edit_user(user_id):
 # Delete the user with the given ID
 @userRoutes.route('/user/<user_id>', methods=['DELETE'])
 @cross_origin(headers=["Content-Type", "Authorization"])
-@requires_auth(audience="http://127.0.0.1:5000/user")
+@requires_auth(audience=user_api_audience)
 def _delete_user(user_id):
     user_collection = mongo_client.db.Users
     user = user_collection.delete_one({'_id': ObjectId(user_id)})

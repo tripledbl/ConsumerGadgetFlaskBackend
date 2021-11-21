@@ -53,7 +53,7 @@ def get_token_auth_header():
 
 
 def requires_auth(*, audience):
-    API_AUDIENCE = audience
+    api_audience = audience
 
     def inner_requires_auth(f):
         # Determines if the Access Token is valid
@@ -83,7 +83,7 @@ def requires_auth(*, audience):
                         token,
                         rsa_key,
                         algorithms=ALGORITHMS,
-                        audience=API_AUDIENCE,
+                        audience=api_audience,
                         issuer="https://" + AUTH0_DOMAIN + "/"
                     )
                 except jwt.ExpiredSignatureError:
