@@ -21,10 +21,6 @@ def retrieveSquareOrdersData(user_id):
         environment='production'
     )
 
-    api_locations = client.locations
-    res = api_locations.list_locations()
-    print(res)
-
     # made call to square orders API
     result = client.orders.search_orders(
         body = {
