@@ -1,13 +1,11 @@
-import pymongo
-
 from extensions import mongo_client
 from square.client import Client
 from bson.objectid import ObjectId
 from .config import *
 from datetime import datetime
-import json
 
-NUM_ORDER_GROUPS = 1
+
+NUM_ORDER_GROUPS = 10
 
 
 # retrieveSquareOrdersData
@@ -26,7 +24,7 @@ def retrieve_square_orders_data(user_id):
         environment='production'
     )
 
-    order_group_collection = mongo_client.db.OrderGroups
+    order_count_collection = mongo_client.db.OrderCounts
 
     cursor = None
     cursor_count = NUM_ORDER_GROUPS
@@ -37,11 +35,9 @@ def retrieve_square_orders_data(user_id):
 
     # finds the most recent date in the database
     try:
-        most_recent_date = (order_group_collection.find({}, {'datetime': 1}).sort([('datetime', -1)]).limit(1))[0]['datetime']
+        most_recent_date = (order_count_collection.find({}, {'datetime': 1}).sort([('datetime', -1)]).limit(1))[0]['datetime']
     except:
         most_recent_date = None
-
-    print(most_recent_date)
 
     # # For testing MOST_RECENT_DATE and skips first week
     # result = client.orders.search_orders(
@@ -88,21 +84,24 @@ def retrieve_square_orders_data(user_id):
                 # if the date does not yet exist in the dictionary then create it and set its count to 1
                 else:
                     order_counts[order_datetime] = 1
+
             # if other older order dates are found then stop adding redundant orders to db
             if older_dates_found:
                 break
+
             # update the cursor for the next group of orders
             try:
                 cursor = result.body['cursor']
             except:
                 break
+            
         else:
             return result.is_error()
 
         cursor_count = cursor_count - 1
 
     for key, value in order_counts.items():
-        order_group_collection.insert_one({
+        order_count_collection.insert_one({
             'datetime': key,
             'order_count': value,
         })
