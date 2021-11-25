@@ -1,7 +1,7 @@
 from routes.authorization import requires_auth, AuthError, handle_auth_error
 from flask_cors import cross_origin
 from extensions import *
-from dataIngestion import retrieveSquareOrdersData
+from dataIngestion import retrieve_square_orders_data
 
 modelRoutes = Blueprint('modelRoutes', __name__)
 
@@ -19,6 +19,6 @@ model_api_audience = os.environ.get('MODEL_API_AUDIENCE')
 def createModel(user_id):
 
     # get the orders data from the users square account
-    res = retrieveSquareOrdersData(user_id)
+    res = retrieve_square_orders_data(user_id)
 
     return res
