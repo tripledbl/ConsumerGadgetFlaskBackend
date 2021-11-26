@@ -3,12 +3,15 @@ from square.client import Client
 from bson.objectid import ObjectId
 from .config import *
 from datetime import datetime
+import pandas as pd
 
 
-NUM_ORDER_GROUPS = 10
+# the number of groups of orders to retrieve from square APIs
+# each group has a limit of 500 orders
+NUM_ORDER_GROUPS = 100
 
 
-# retrieveSquareOrdersData
+# retrieve_square_orders_data
 # inputs: none
 # output: a json dataset of the data from the square orders API
 def retrieve_square_orders_data(user_id):
@@ -107,3 +110,30 @@ def retrieve_square_orders_data(user_id):
         })
 
     return result.body
+
+
+# orders_to_dataframe
+# inputs: None
+# outputs: converts order count data in mongodb into a dataframe with columns (date, order_count)
+def orders_to_dateframe():
+
+    # set up client for order count collection
+    order_count_collection = mongo_client.db.OrderCounts
+
+    # initialize a dataframe with the given columns
+    df = pd.DataFrame(columns=['date', 'order_count'])
+
+    # iterate though each item in the order count collection
+    for order_count in order_count_collection.find():
+        # add each order count in the collection into the dataframe
+        df.loc[len(df)] = [order_count['datetime'], order_count['order_count']]
+
+    return df
+
+# add_day_of_week
+# inputs: a dataframe with a column that is a date
+# outputs: the dataframe with a new column that is the day of week of date column
+def add_day_of_week(df):
+    # add a column to the dataframe that is the day of week of the date column
+    df['day_of_week'] = df['date'].dt.dayofweek
+    return df
