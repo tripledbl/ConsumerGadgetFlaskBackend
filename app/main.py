@@ -18,6 +18,7 @@ def create_app(test_config=None):
     app.config['CRABTREE_USER_ID'] = os.environ.get('CRABTREE_USER_ID')
     app.config['USER_API_AUDIENCE'] = os.environ.get('USER_API_AUDIENCE')
     app.config['MODEL_API_AUDIENCE'] = os.environ.get('MODEL_API_AUDIENCE')
+    app.config['VISUAL_CROSSINGS_KEY'] = os.environ.get('VISUAL_CROSSINGS_KEY')
 
     mongo_client.init_app(app)
 
