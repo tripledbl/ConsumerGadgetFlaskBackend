@@ -132,8 +132,16 @@ def orders_to_dateframe():
 
 # add_day_of_week
 # inputs: a dataframe with a column that is a date
-# outputs: the dataframe with a new column that is the day of week of date column
+# outputs: the dataframe with a new column that is the day of week of date column (0 is monday, 6 is sunday)
 def add_day_of_week(df):
     # add a column to the dataframe that is the day of week of the date column
-    df['day_of_week'] = df['date'].dt.dayofweek
+    df['day'] = df['date'].dt.dayofweek
     return df
+
+# add_month
+# inputs: a dataframe with a column that is a datetime
+# outputs: the dataframe with a new column that is the month number of the date column (Jan is 1, Dec is 12)
+def add_month(df):
+    df['month'] = df['date'].dt.month
+    return df
+ 

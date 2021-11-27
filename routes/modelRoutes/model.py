@@ -2,7 +2,7 @@ import os
 from routes.authorization import requires_auth, AuthError, handle_auth_error
 from flask_cors import cross_origin
 from extensions import *
-from dataIngestion import orders_to_dateframe, add_day_of_week, retrieve_square_orders_data
+from dataIngestion import *
 
 modelRoutes = Blueprint('modelRoutes', __name__)
 
@@ -27,8 +27,9 @@ def createModel(user_id):
     # get the orders data from the users square account
     orders_df = orders_to_dateframe()
     orders_df = add_day_of_week(orders_df)
+    orders_df = add_month(orders_df)
 
-    print(orders_df)
+    print(orders_df.head(100))
 
     return {
         'message': 'success'
