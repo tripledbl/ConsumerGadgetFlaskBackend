@@ -130,18 +130,33 @@ def orders_to_dateframe():
 
     return df
 
-# add_day_of_week
-# inputs: a dataframe with a column that is a date
-# outputs: the dataframe with a new column that is the day of week of date column (0 is monday, 6 is sunday)
-def add_day_of_week(df):
-    # add a column to the dataframe that is the day of week of the date column
-    df['day'] = df['date'].dt.dayofweek
-    return df
+# add_date_columns
+# inputs: a dataframe with an input that is a datetime
+# outputs: multiple columns are added to the dataframe regarding the datetime column and all of the related DateTimeIndex methods
+def add_date_columns(df):
+    # cast the orders column to an integer
+    df['order_count'] = pd.to_numeric(df['order_count'])
 
-# add_month
-# inputs: a dataframe with a column that is a datetime
-# outputs: the dataframe with a new column that is the month number of the date column (Jan is 1, Dec is 12)
-def add_month(df):
-    df['month'] = df['date'].dt.month
+    # add columns for the relevant date features
+    df['year'] = pd.DatetimeIndex(df['date']).year
+    df['month'] = pd.DatetimeIndex(df['date']).month
+    df['day'] = pd.DatetimeIndex(df['date']).day
+    df['dayofyear'] = pd.DatetimeIndex(df['date']).dayofyear
+    df['weekofyear'] = pd.DatetimeIndex(df['date']).weekofyear
+    df['weekday'] = pd.DatetimeIndex(df['date']).weekday
+    df['quarter'] = pd.DatetimeIndex(df['date']).quarter
+    df['is_month_start'] = pd.DatetimeIndex(df['date']).is_month_start
+    df['is_month_end'] = pd.DatetimeIndex(df['date']).is_month_end
+    
+    # remove the date column because we dont need it anymore
+    df = df.drop(['date'], axis=1)
+
+    # dummy encoding technique to create categorical variables from necessary columns
+    df = pd.get_dummies(df, columns=['year'], drop_first=True, prefix='year')
+    df = pd.get_dummies(df, columns=['month'], drop_first=True, prefix='month')
+    df = pd.get_dummies(df, columns=['weekday'], drop_first=True, prefix='wday')
+    df = pd.get_dummies(df, columns=['quarter'], drop_first=True, prefix='qrtr')
+    df = pd.get_dummies(df, columns=['is_month_start'], drop_first=True, prefix='m_start')
+    df = pd.get_dummies(df, columns=['is_month_end'], drop_first=True, prefix='m_end')
+
     return df
- 
