@@ -2,7 +2,7 @@ import os
 from routes.authorization import requires_auth, AuthError, handle_auth_error
 from flask_cors import cross_origin
 from extensions import *
-from dataIngestion import *
+from MLModels import *
 
 modelRoutes = Blueprint('modelRoutes', __name__)
 
@@ -24,12 +24,9 @@ def createModel(user_id):
             'message': 'this user ID cannot create models'
         }
 
-    # get the orders data from the users square account
-    orders_df = orders_to_dateframe()
-    orders_df = add_day_of_week(orders_df)
-    orders_df = add_month(orders_df)
+    # create a machine learning model
+    create_model()
 
-    print(orders_df.head(100))
 
     return {
         'message': 'success'
