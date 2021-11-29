@@ -70,7 +70,7 @@ def createModel(user_id):
         }
 
     # create a machine learning model
-    create_model()
+    create_model(user_id)
 
 
     return {
