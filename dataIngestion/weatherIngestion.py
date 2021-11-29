@@ -4,10 +4,11 @@ from datetime import datetime, timedelta, date as dt
 from bson.objectid import ObjectId
 from .config import *
 
+
 FORECASTED_WEATHER_CALL = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/[city_name]?unitGroup=us&key=" \
                           + os.environ.get('VISUAL_CROSSINGS_KEY') + "&options=nonulls"
 HISTORICAL_WEATHER_CALL = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/[city_name]/[from_date]/[to_date]?unitGroup=us&key=" \
-                          + "M34N6PUMF872DUTLDQBXNMHZC" + "&options=nonulls"
+                          + os.environ.get('VISUAL_CROSSINGS_KEY') + "&options=nonulls"
 
 
 # retrieveHistoricalWeatherData
@@ -47,6 +48,7 @@ def retrieve_historical_weather_data(city_name):
         days = response.json()['days']
         historical_dates_data = {}
 
+        # Going through each day and adding it to dict
         for day in days:
             historical_data = dict(temperature=day['temp'],
                                    precipitation=day['precip'],
@@ -56,11 +58,11 @@ def retrieve_historical_weather_data(city_name):
             # Checking if date is already in db to reduce redundancy
             if historical_datetime <= most_recent_date:
                 older_dates_found = True
+                break
             historical_dates_data[historical_datetime] = historical_data
 
         # Inserted back [from_date] and [to_date] so the next dates can be added in the next loop iteration
         historical_weather_call = historical_weather_call.replace(from_date.strftime('%Y-%m-%d'), "[from_date]").replace(to_date.strftime('%Y-%m-%d'), "[to_date]")
-
         to_date = from_date
 
     # Adding historical data to db
