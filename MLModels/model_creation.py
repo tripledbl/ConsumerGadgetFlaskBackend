@@ -28,8 +28,14 @@ def create_model(user_id):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
     
     # create random forrest model
-    model_rf = RandomForestRegressor(n_estimators=5000, oob_score=True, random_state=100)
-    model_rf.fit(X_train.values, y_train)
+    # model_rf = RandomForestRegressor(n_estimators=2500, oob_score=True, random_state=100)
+
+    # model_rf.fit(X_train.values, y_train)
+
+    with open('customer_volume_model', 'rb') as f:
+        model_rf = pickle.load(f)
+
+    
     pred_train_rf = model_rf.predict(X_train.values)
 
     # print relevant model data
@@ -46,7 +52,7 @@ def create_model(user_id):
     accuracy = r2_score(y_test, pred_test_rf)
 
     # insert model info into db
-    # download_model(model_rf, accuracy, mean_error)
+    # download_model(model_rf)
 
     # use model to make prediction
     # make_prediction('customer_volume_model', X_train)
@@ -56,7 +62,7 @@ def create_model(user_id):
 # insert_model_info
 # inputs: model name, model accuracy, and average model error
 # outputs: the information regarding an ML model is inserted into the database (the actual model file is not inserted)
-def download_model(model, accuracy, mean_error):
+def download_model(model):
     
     with open('customer_volume_model', 'wb') as f:
         pickle.dump(model, f)
