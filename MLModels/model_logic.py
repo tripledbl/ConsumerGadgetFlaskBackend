@@ -32,7 +32,7 @@ def create_model(user_id):
 
     # model_rf.fit(X_train.values, y_train)
 
-    with open('customer_volume_model', 'rb') as f:
+    with open('trainedModels/customer_volume_model', 'rb') as f:
         model_rf = pickle.load(f)
 
     
@@ -74,3 +74,6 @@ def make_prediction(model_name, test_data):
         model = pickle.load(f)
 
     print(model.predict(test_data.values))
+
+# make_prediction
+# inputs: 
