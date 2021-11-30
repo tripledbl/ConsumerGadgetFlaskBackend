@@ -76,3 +76,22 @@ def createModel(user_id):
     return {
         'message': 'success'
     }
+
+# get_prediction
+# get a prediction from the ml model
+@userRoutes.route('/user/<user_id>/prediction', methods=['GET'])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth(audience=user_api_audience)
+def get_prediction(user_id):
+    # temporary check to make sure it is crabtrees user ID accessing his data
+    if user_id != os.environ.get('CRABTREE_USER_ID'):
+        return {
+            'message': 'this user ID cannot get predictions'
+        }
+
+    # make a prediction with the ml model
+    prediction = make_prediction('2021-11-15', 'customer_volume_model')
+
+    return {
+        'prediction': prediction[0]
+    }

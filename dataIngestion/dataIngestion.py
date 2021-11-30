@@ -152,11 +152,11 @@ def add_date_columns(df):
     df = df.drop(['date'], axis=1)
 
     # dummy encoding technique to create categorical variables from necessary columns
-    df = pd.get_dummies(df, columns=['year'], drop_first=True, prefix='year')
-    df = pd.get_dummies(df, columns=['month'], drop_first=True, prefix='month')
-    df = pd.get_dummies(df, columns=['weekday'], drop_first=True, prefix='wday')
-    df = pd.get_dummies(df, columns=['quarter'], drop_first=True, prefix='qrtr')
-    df = pd.get_dummies(df, columns=['is_month_start'], drop_first=True, prefix='m_start')
-    df = pd.get_dummies(df, columns=['is_month_end'], drop_first=True, prefix='m_end')
+    df = pd.get_dummies(df, columns=['year'], prefix='year')
+    df = pd.get_dummies(df, columns=['month'], prefix='month')
+    df = pd.get_dummies(df, columns=['weekday'], prefix='wday')
+    df = pd.get_dummies(df, columns=['quarter'], prefix='qrtr')
+    df = pd.get_dummies(df, columns=['is_month_start'], prefix='m_start')
+    df = pd.get_dummies(df, columns=['is_month_end'], prefix='m_end')
 
     return df
