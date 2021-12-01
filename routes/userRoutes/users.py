@@ -70,11 +70,11 @@ def createModel(user_id):
         }
 
     # create a machine learning model
-    create_model(user_id)
+    # create_model(user_id)
 
 
     return {
-        'message': 'success'
+        'message': 'temporarily disabled'
     }
 
 # get_prediction
