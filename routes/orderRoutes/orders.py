@@ -9,7 +9,7 @@ orderRoutes = Blueprint('orderRoutes', __name__)
 orderRoutes.register_error_handler(AuthError, handle_auth_error)
 
 # Assign api_audience
-orders_api_audience = os.environ.get('ORDER_API_AUDIENCE')
+orders_api_audience = os.environ.get('ORDERS_API_AUDIENCE')
 
 
 # Get orders from a passed in date range from db
