@@ -1,6 +1,7 @@
 from routes.authorization import requires_auth, AuthError, handle_auth_error
 from flask_cors import cross_origin
 from extensions import *
+from MLModels import *
 
 userRoutes = Blueprint('userRoutes', __name__)
 
@@ -55,3 +56,23 @@ def _delete_user(user_id):
     user_collection = mongo_client.db.Users
     user = user_collection.delete_one({'_id': ObjectId(user_id)})
     return json.loads(json_util.dumps(user.raw_result))
+
+# createModel
+# create a machine learning model using predetermined data and inputs
+@userRoutes.route('/user/<user_id>/model', methods=['POST'])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth(audience=user_api_audience)
+def createModel(user_id):
+    # temporary check to make sure it is crabtrees user ID accessing his data
+    if user_id != os.environ.get('CRABTREE_USER_ID'):
+        return {
+            'message': 'this user ID cannot create models'
+        }
+
+    # create a machine learning model
+    create_model()
+
+
+    return {
+        'message': 'success'
+    }
