@@ -7,7 +7,7 @@ from .config import *
 # retrieveSquareOrdersData
 # inputs: none
 # output: a json dataset of the data from the square orders API
-def retrieveSquareOrdersData(user_id):
+def retrieve_square_orders_data(user_id):
 
     # get database access to get the square access token
     keystore_collection = mongo_client.db.KeyStore

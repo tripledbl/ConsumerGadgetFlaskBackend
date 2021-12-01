@@ -8,7 +8,7 @@ from .config import *
 FORECASTED_WEATHER_CALL = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/[city_name]?unitGroup=us&key=" \
                           + os.environ.get('VISUAL_CROSSINGS_KEY') + "&options=nonulls"
 HISTORICAL_WEATHER_CALL = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/[city_name]/[from_date]/[to_date]?unitGroup=us&key=" \
-                          + os.environ.get('VISUAL_CROSSINGS_KEY') + "&options=nonulls"
+                          + os.environ.get('VISUAL_CROSSINGS_KEY') + "&options=nonulls&include=obs%2Cstats"
 
 
 # retrieveHistoricalWeatherData
@@ -20,15 +20,20 @@ def retrieve_historical_weather_data(city_name):
     # finds the most recent date in the database
     try:
         most_recent_date = (historical_weather.find({}, {'datetime': 1}).sort([('datetime', -1)]).limit(1))[0]['datetime']
+        print(most_recent_date)
     except:
         most_recent_date = None
 
     historical_weather_call = HISTORICAL_WEATHER_CALL.replace("[city_name]", city_name)
-    to_date = dt.today()
+    # Making starting point yesterday
+    to_date = dt.today() - timedelta(days=1)
     older_dates_found = False
 
+    # Empty dict for storing date data
+    historical_dates_data = {}
+
     # For loop for acquiring the last two years - incrementing weekly
-    for date in range(1):  # todo SET to 104
+    for date in range(104):  # todo SET to 104
         # if older dates are found in db then stop
         if older_dates_found:
             break
@@ -46,17 +51,17 @@ def retrieve_historical_weather_data(city_name):
 
         # Acquiring days
         days = response.json()['days']
-        historical_dates_data = {}
 
         # Going through each day and adding it to dict
-        for day in days:
+        # Reversed for db date comparison
+        for day in reversed(days):
             historical_data = dict(temperature=day['temp'],
                                    precipitation=day['precip'],
                                    conditions=day['conditions']
                                    )
-            historical_datetime = datetime.strptime(day['datetime'] + "T00:00:00Z", '%Y-%m-%dT%H:%M:%SZ')
+            historical_datetime = day['datetime']
             # Checking if date is already in db to reduce redundancy
-            if historical_datetime <= most_recent_date:
+            if most_recent_date is not None and most_recent_date >= datetime.strptime(historical_datetime + "T00:00:00Z", '%Y-%m-%dT%H:%M:%SZ'):
                 older_dates_found = True
                 break
             historical_dates_data[historical_datetime] = historical_data
@@ -67,11 +72,12 @@ def retrieve_historical_weather_data(city_name):
 
     # Adding historical data to db
     for date in historical_dates_data:
-        historical_datetime = datetime.strptime(date.strftime('%Y-%m-%d') + "T00:00:00Z", '%Y-%m-%dT%H:%M:%SZ')
+        historical_datetime = datetime.strptime(date + "T00:00:00Z", '%Y-%m-%dT%H:%M:%SZ')
         mongo_client.db.HistoricalWeather.insert_one({'datetime': historical_datetime,
                                                       'temperature': historical_dates_data[date]['temperature'],
                                                       'precipitation': historical_dates_data[date]['precipitation'],
                                                       'condition': historical_dates_data[date]['conditions']})
+
     return historical_dates_data
 
 
@@ -88,11 +94,14 @@ def retrieve_forecasted_weather_data(city_name):
         return response.reason
     days = response.json()['days']
     forecasts = {}
-    for day in days:
+    for day in days[1:]:
         forecast = dict(temperature=day['temp'],
-                        precipitation=['precip'],
+                        precipitation=day['precip'],
                         conditions=day['conditions']
                         )
-        forecast_datetime = datetime.strptime(day['datetime'] + "T00:00:00Z", '%Y-%m-%dT%H:%M:%SZ')
+        forecast_datetime = day['datetime']
+        # This doesn't work with JSON, it want's a string as a key, not a datetime object
+        # forecast_datetime = datetime.strptime(day['datetime'] + "T00:00:00Z", '%Y-%m-%dT%H:%M:%SZ')
         forecasts[forecast_datetime] = forecast
+
     return forecasts

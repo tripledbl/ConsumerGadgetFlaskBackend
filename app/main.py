@@ -1,7 +1,8 @@
 import os
 from routes.userRoutes import *
 from routes.squareRoutes import *
-from routes.modelRoutes import *
+from routes.orderRoutes import *
+from routes.weatherRoutes import *
 from extensions import Flask, mongo_client
 
 
@@ -36,7 +37,8 @@ def create_app(test_config=None):
 def register_blueprints(app):
     app.register_blueprint(userRoutes)
     app.register_blueprint(squareRoutes)
-    app.register_blueprint(modelRoutes)
+    app.register_blueprint(orderRoutes)
+    app.register_blueprint(weatherRoutes)
 
 
 app = create_app()
