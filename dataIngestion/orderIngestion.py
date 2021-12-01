@@ -2,9 +2,6 @@ from extensions import mongo_client
 from square.client import Client
 from bson.objectid import ObjectId
 from .config import *
-from datetime import datetime
-import pandas as pd
-
 
 # the number of groups of orders to retrieve from square APIs
 # each group has a limit of 500 orders
@@ -97,7 +94,7 @@ def retrieve_square_orders_data(user_id):
                 cursor = result.body['cursor']
             except:
                 break
-            
+
         else:
             return result.is_error()
 
@@ -147,7 +144,7 @@ def add_date_columns(df):
     df['quarter'] = pd.DatetimeIndex(df['date']).quarter
     df['is_month_start'] = pd.DatetimeIndex(df['date']).is_month_start
     df['is_month_end'] = pd.DatetimeIndex(df['date']).is_month_end
-    
+
     # remove the date column because we dont need it anymore
     df = df.drop(['date'], axis=1)
 
