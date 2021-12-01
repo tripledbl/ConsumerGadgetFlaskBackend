@@ -1,14 +1,10 @@
 from numpy.core.fromnumeric import mean
 from dataIngestion import *
 import numpy as np
-from sklearn.metrics import r2_score
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import r2_score, mean_squared_error
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
-from extensions import *
-import gridfs
 import pickle
-import io
 
 # create_model
 # inputs: None
@@ -58,6 +54,7 @@ def download_model(model):
         pickle.dump(model, f)
 
     return 'downloaded'
+
 
 # make_prediction
 # inputs: model name, a date to predict for

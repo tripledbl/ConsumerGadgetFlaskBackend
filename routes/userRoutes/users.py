@@ -57,6 +57,7 @@ def _delete_user(user_id):
     user = user_collection.delete_one({'_id': ObjectId(user_id)})
     return json.loads(json_util.dumps(user.raw_result))
 
+
 # createModel
 # create a machine learning model using predetermined data and inputs
 @userRoutes.route('/user/<user_id>/model', methods=['POST'])
@@ -72,10 +73,10 @@ def createModel(user_id):
     # create a machine learning model
     # create_model(user_id)
 
-
     return {
         'message': 'temporarily disabled'
     }
+
 
 # get_prediction
 # get a prediction from the ml model
@@ -85,9 +86,7 @@ def createModel(user_id):
 def get_prediction(user_id):
     # temporary check to make sure it is crabtrees user ID accessing his data
     if user_id != os.environ.get('CRABTREE_USER_ID'):
-        return {
-            'message': 'this user ID cannot get predictions'
-        }
+        return Response("{'Error': 'Forbidden (Non-Crabtree user)'}", status=403, mimetype='application/json')
     # check if the date is present
     if 'date' not in request.form:
         return Response("{'Error': 'Bad Request: Missing date field'}", status=400, mimetype='application/json')
