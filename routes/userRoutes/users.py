@@ -88,9 +88,14 @@ def get_prediction(user_id):
         return {
             'message': 'this user ID cannot get predictions'
         }
+    # check if the date is present
+    if 'date' not in request.form:
+        return Response("{'Error': 'Bad Request: Missing date field'}", status=400, mimetype='application/json')
+    else:
+        date = request.form.get('date')
 
     # make a prediction with the ml model
-    prediction = make_prediction('2021-11-15', 'customer_volume_model')
+    prediction = make_prediction(date, 'customer_volume_model')
 
     return {
         'prediction': prediction[0]
