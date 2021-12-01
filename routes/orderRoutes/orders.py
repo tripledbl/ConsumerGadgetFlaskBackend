@@ -13,10 +13,22 @@ orders_api_audience = os.environ.get('ORDERS_API_AUDIENCE')
 
 
 # Get orders from a passed in date range from db
-@orderRoutes.route('/orders/<string:from_date>/<string:to_date>', methods=['GET'])
+@orderRoutes.route('/orders', methods=['GET'])
 @cross_origin(headers=["Content-Type", "Authorization"])
 @requires_auth(audience=orders_api_audience)
-def get_historical_weather(from_date, to_date):
+def get_order_groups():
+    # check if from_date in form
+    if 'from_date' not in request.form:
+        return Response("{'Error': 'Bad Request: Missing from_date'}", status=400, mimetype='application/json')
+    else:
+        from_date = request.form.get('from_date')
+
+    # check if to_date in form
+    if 'to_date' not in request.form:
+        return Response("{'Error': 'Bad Request: Missing to_date'}", status=400, mimetype='application/json')
+    else:
+        to_date = request.form.get('to_date')
+
     order_counts_collection = mongo_client.db.OrderCounts
     # Converting strings to datetime objets
     from_date = datetime.strptime(from_date + "T00:00:00Z", '%Y-%m-%dT%H:%M:%SZ')
