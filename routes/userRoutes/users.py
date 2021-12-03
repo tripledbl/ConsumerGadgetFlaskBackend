@@ -31,9 +31,12 @@ def _create_user():
 @requires_auth(audience=user_api_audience)
 def _get_user(user_id):
     user_collection = mongo_client.db.Users
-    user = user_collection.find_one({'_id': ObjectId(user_id)})
-    # have to use json_util because the ObjectId in the user object cannot be directly turned to json
-    return json.loads(json_util.dumps(user))
+    # determine whether the user exists
+    if user_collection.count_documents({ '_id': ObjectId(user_id) }, limit = 1):
+        user = user_collection.find_one({'_id': ObjectId(user_id)})
+        return json.loads(json_util.dumps(user))
+    else:
+        return Response("{'Error': 'No such user with the given ID'}", status=404, mimetype='application/json')
 
 
 # Update the email address of a user with the given ID

@@ -4,12 +4,14 @@ from routes.squareRoutes import *
 from routes.orderRoutes import *
 from routes.weatherRoutes import *
 from extensions import Flask, mongo_client
+from flask_cors import CORS
 
 
 def create_app(test_config=None):
     # create and configure the app
 
     app = Flask(__name__, instance_relative_config=True)
+    CORS(app)
 
     # configure MongoDB database parameters
     app.config['MONGO_URI'] = os.environ.get('MONGO_URI')
