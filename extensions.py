@@ -1,6 +1,7 @@
 import os
 import json
 from flask_pymongo import PyMongo
+from flask_cors import CORS
 from flask import Flask, Blueprint, jsonify, request, current_app
 from bson import json_util
 from bson.objectid import ObjectId

@@ -8,6 +8,7 @@ def create_app(test_config=None):
     # create and configure the app
 
     app = Flask(__name__, instance_relative_config=True)
+    CORS(app)
 
     # configure MongoDB database parameters
     app.config['MONGO_URI'] = os.environ.get('MONGO_URI')
@@ -27,7 +28,6 @@ def create_app(test_config=None):
 
     # register all blueprints
     register_blueprints(app)
-
     return app
 
 
