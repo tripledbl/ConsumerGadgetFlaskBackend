@@ -21,8 +21,12 @@ def _create_user():
     email = request.form.get('email')
     # subject to change, must make this id the same as the ID passed by Auth0 from the frontend
     id = request.form.get('id')
-    user_collection.insert_one({'_id': ObjectId(id), 'email': email, 'models': []})
-    return jsonify(message="success")
+    # check if a user with this ID already exists
+    if user_collection.count_documents({ '_id': ObjectId(id) }, limit = 1):
+        return Response("{'Error': 'User already exists'}", status=403, mimetype='application/json')
+    else:
+        user_collection.insert_one({'_id': ObjectId(id), 'email': email, 'models': []})
+        return jsonify(message="success")
 
 
 # Get a user with the given ID
