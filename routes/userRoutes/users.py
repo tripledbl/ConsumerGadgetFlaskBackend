@@ -18,14 +18,24 @@ user_api_audience = os.environ.get('USER_API_AUDIENCE')
 @requires_auth(audience=user_api_audience)
 def _create_user():
     user_collection = mongo_client.db.Users
-    email = request.form.get('email')
-    # subject to change, must make this id the same as the ID passed by Auth0 from the frontend
+
+    # check if form attributes are present
+    if 'id' not in request.form:
+        return Response("{'Error': 'Bad Request: Missing id field'}", status=400, mimetype='application/json')
+    elif 'email' not in request.form:
+        return Response("{'Error': 'Bad Request: Missing email field'}", status=400, mimetype='application/json')
+    elif 'name' not in request.form:
+        return Response("{'Error': 'Bad Request: Missing name field'}", status=400, mimetype='application/json')
+
     id = request.form.get('id')
+    email = request.form.get('email')
+    name = request.form.get('name')
+
     # check if a user with this ID already exists
-    if user_collection.count_documents({ '_id': ObjectId(id) }, limit = 1):
+    if user_collection.count_documents({ 'id': id }, limit = 1):
         return Response("{'Error': 'User already exists'}", status=403, mimetype='application/json')
     else:
-        user_collection.insert_one({'_id': ObjectId(id), 'email': email, 'models': []})
+        user_collection.insert_one({'id': id, 'email': email, 'name': name, 'forecasts': []})
         return jsonify(message="success")
 
 
@@ -36,8 +46,8 @@ def _create_user():
 def _get_user(user_id):
     user_collection = mongo_client.db.Users
     # determine whether the user exists
-    if user_collection.count_documents({ '_id': ObjectId(user_id) }, limit = 1):
-        user = user_collection.find_one({'_id': ObjectId(user_id)})
+    if user_collection.count_documents({ 'id': user_id }, limit = 1):
+        user = user_collection.find_one({'id': user_id})
         return json.loads(json_util.dumps(user))
     else:
         return Response("{'Error': 'No such user with the given ID'}", status=404, mimetype='application/json')
@@ -49,10 +59,16 @@ def _get_user(user_id):
 @requires_auth(audience=user_api_audience)
 def _edit_user(user_id):
     user_collection = mongo_client.db.Users
+
     new_email = request.form.get('email')
-    # use 'id' instead of '_id' temporarily
-    user = user_collection.replace_one({'_id': ObjectId(user_id)}, {'email': new_email, 'models': []})
-    return json.loads(json_util.dumps(user.raw_result))
+    new_name = request.form.get('name')
+
+    # determine whether the user exists
+    if user_collection.count_documents({ 'id': user_id }, limit = 1):
+        user = user_collection.replace_one({'id': user_id}, {'id': user_id, 'email': new_email, 'name': new_name, 'forecasts': []})
+        return json.loads(json_util.dumps(user.raw_result))
+    else:
+        return Response("{'Error': 'No such user with the given ID'}", status=404, mimetype='application/json')
 
 
 # Delete the user with the given ID
@@ -61,8 +77,12 @@ def _edit_user(user_id):
 @requires_auth(audience=user_api_audience)
 def _delete_user(user_id):
     user_collection = mongo_client.db.Users
-    user = user_collection.delete_one({'_id': ObjectId(user_id)})
-    return json.loads(json_util.dumps(user.raw_result))
+
+    if user_collection.count_documents({ 'id': user_id }, limit = 1):
+        user = user_collection.delete_one({'id': user_id})
+        return json.loads(json_util.dumps(user.raw_result))
+    else:
+        return Response("{'Error': 'No such user with the given ID'}", status=404, mimetype='application/json')
 
 
 # createModel
