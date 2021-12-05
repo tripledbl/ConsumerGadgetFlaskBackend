@@ -132,10 +132,21 @@ def get_prediction(user_id, from_date, to_date):
     from_date = datetime.combine(from_date, time)
     to_date = datetime.combine(to_date, time)
 
-    prediction_dates = {}
+    # create an array with all of the date strings
+    dates = []
     while from_date <= to_date:
-        # make a prediction with the ml model
-        prediction_dates[from_date.strftime('%Y-%m-%d')] = make_prediction(from_date, 'customer_volume_model')
+        dates.append(from_date.strftime('%Y-%m-%d'))
         from_date = from_date + timedelta(days=1)
 
-    return prediction_dates
+    predictions = make_prediction(dates, 'customer_volume_model')
+
+    # return dictionary
+    res = {}
+    # keep track of array index
+    index = 0
+    # add each date and prediction to an object
+    for prediction in predictions:
+        res[dates[index]] = prediction
+        index = index + 1
+
+    return res
