@@ -60,13 +60,6 @@ def download_model(model):
 # inputs: model name, a date to predict for
 # outputs: a float value that is the output of the model
 def make_prediction(date, model_name):
-    # cast the date string to a date
-    date = datetime.strptime(date, '%Y-%m-%d').date()
-
-    # cast to datetime so the column conversions below work
-    time = datetime.min.time()
-    date = datetime.combine(date, time)
-
     # initialize a dataframe with the given columns
     df = pd.DataFrame(columns=['date'])
 
@@ -108,4 +101,4 @@ def make_prediction(date, model_name):
     # ensure that the order of the columns is the same
     df = df[model.features]
 
-    return model.predict(df.values)
+    return model.predict(df.values)[0]

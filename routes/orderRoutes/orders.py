@@ -48,6 +48,10 @@ def get_order_groups(from_date, to_date):
     # Converting strings to datetime objets
     from_date = datetime.strptime(from_date + "T00:00:00Z", '%Y-%m-%dT%H:%M:%SZ')
     to_date = datetime.strptime(to_date + "T00:00:00Z", '%Y-%m-%dT%H:%M:%SZ')
+
+    if from_date > to_date:
+        return Response("{'Error': 'Bad Request: from_date is greater than to_date'}", status=400, mimetype='application/json')
+
     order_groups = {}
     # Grabbing orderGroups using from_date until it reaches the day before the to_date
     for order in order_counts_collection.find({"datetime": {"$gte": from_date, "$lte": to_date}}):
