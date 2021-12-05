@@ -135,7 +135,7 @@ def get_prediction(user_id, from_date, to_date):
     prediction_dates = {}
     while from_date <= to_date:
         # make a prediction with the ml model
-        prediction_dates[from_date] = make_prediction(from_date, 'customer_volume_model')
+        prediction_dates[from_date.strftime('%Y-%m-%d')] = make_prediction(from_date, 'customer_volume_model')
         from_date = from_date + timedelta(days=1)
 
     return prediction_dates

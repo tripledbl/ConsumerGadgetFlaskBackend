@@ -101,4 +101,4 @@ def make_prediction(date, model_name):
     # ensure that the order of the columns is the same
     df = df[model.features]
 
-    return model.predict(df.values)
+    return model.predict(df.values)[0]
