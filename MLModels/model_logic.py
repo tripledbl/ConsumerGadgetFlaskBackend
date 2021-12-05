@@ -59,46 +59,54 @@ def download_model(model):
 # make_prediction
 # inputs: model name, a date to predict for
 # outputs: a float value that is the output of the model
-def make_prediction(date, model_name):
-    # initialize a dataframe with the given columns
-    df = pd.DataFrame(columns=['date'])
-
-    # populate the dataframe with the given date
-    df.loc[len(df)] = [date]
-
-    # add columns for the relevant date features
-    df['year'] = pd.DatetimeIndex(df['date']).year
-    df['month'] = pd.DatetimeIndex(df['date']).month
-    df['day'] = pd.DatetimeIndex(df['date']).day
-    df['dayofyear'] = pd.DatetimeIndex(df['date']).dayofyear
-    df['weekofyear'] = pd.DatetimeIndex(df['date']).weekofyear
-    df['weekday'] = pd.DatetimeIndex(df['date']).weekday
-    df['quarter'] = pd.DatetimeIndex(df['date']).quarter
-    df['is_month_start'] = pd.DatetimeIndex(df['date']).is_month_start
-    df['is_month_end'] = pd.DatetimeIndex(df['date']).is_month_end
-
-    # dummy encoding technique to create categorical variables from necessary columns
-    df = pd.get_dummies(df, columns=['year'], prefix='year')
-    df = pd.get_dummies(df, columns=['month'], prefix='month')
-    df = pd.get_dummies(df, columns=['weekday'], prefix='wday')
-    df = pd.get_dummies(df, columns=['quarter'], prefix='qrtr')
-    df = pd.get_dummies(df, columns=['is_month_start'], prefix='m_start')
-    df = pd.get_dummies(df, columns=['is_month_end'], prefix='m_end')
-
-    # remove the date column because we dont need it anymore
-    df = df.drop(['date'], axis=1)
-
+def make_prediction(dates, model_name):
     # retrieve the ml model
     model_path = 'trainedModels/' + model_name
     with open(model_path, 'rb') as f:
         model = pickle.load(f)
 
-    # get missing columns
-    missing_cols = set(model.features) - set(df.columns)
-    # add missing columns with default value set to 0
-    for c in missing_cols:
-        df[c] = 0
-    # ensure that the order of the columns is the same
-    df = df[model.features]
+    # create empty dataframe to append rows to
+    predictions_df = pd.DataFrame()
 
-    return model.predict(df.values)[0]
+    # for each date needing a prediction...
+    for date in dates:
+        # initialize a dataframe with the given columns
+        df = pd.DataFrame(columns=['date'])
+
+        # populate the dataframe with the given date
+        df.loc[len(df)] = [date]
+
+        # add columns for the relevant date features
+        df['year'] = pd.DatetimeIndex(df['date']).year
+        df['month'] = pd.DatetimeIndex(df['date']).month
+        df['day'] = pd.DatetimeIndex(df['date']).day
+        df['dayofyear'] = pd.DatetimeIndex(df['date']).dayofyear
+        df['weekofyear'] = pd.DatetimeIndex(df['date']).weekofyear
+        df['weekday'] = pd.DatetimeIndex(df['date']).weekday
+        df['quarter'] = pd.DatetimeIndex(df['date']).quarter
+        df['is_month_start'] = pd.DatetimeIndex(df['date']).is_month_start
+        df['is_month_end'] = pd.DatetimeIndex(df['date']).is_month_end
+
+        # dummy encoding technique to create categorical variables from necessary columns
+        df = pd.get_dummies(df, columns=['year'], prefix='year')
+        df = pd.get_dummies(df, columns=['month'], prefix='month')
+        df = pd.get_dummies(df, columns=['weekday'], prefix='wday')
+        df = pd.get_dummies(df, columns=['quarter'], prefix='qrtr')
+        df = pd.get_dummies(df, columns=['is_month_start'], prefix='m_start')
+        df = pd.get_dummies(df, columns=['is_month_end'], prefix='m_end')
+
+        # remove the date column because we dont need it anymore
+        df = df.drop(['date'], axis=1)
+        
+        # get missing columns
+        missing_cols = set(model.features) - set(df.columns)
+        # add missing columns with default value set to 0
+        for c in missing_cols:
+            df[c] = 0
+        # ensure that the order of the columns is the same
+        df = df[model.features]
+
+        predictions_df = predictions_df.append(df)
+
+
+    return model.predict(predictions_df.values)
