@@ -1,8 +1,41 @@
 from flask import Blueprint, current_app
 from square.client import Client
-from bson.objectid import ObjectId
 
 squareRoutes = Blueprint('squareRoutes', __name__)
+
+
+# obtainToken
+# inputs:
+#   - token: a properly formatted OAuth token that can be used to call the Square's ObtainToken endpoint
+# output: the token returned by Square's ObtainToken endpoint
+def obtain_token(token):
+    # create square sdk client
+    client = Client(
+        access_token=token,
+        environment='production'
+    )
+
+    # set up inputs to obtainToken endpoint
+    client_id = current_app.config['SQUARE_CLIENT_ID']
+    client_secret = current_app.config['SQUARE_CLIENT_SECRET']
+    grant_type = 'authorization_code'
+
+    # get the tokens from the square authentication API
+    result = client.o_auth.obtain_token(
+        body={
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "code": token,
+            "grant_type": grant_type
+        }
+    )
+
+    if result.is_success():
+        print(result.body)
+    elif result.is_error():
+        print(result.errors)
+
+    return result.body
 
 # TEMPORARILY DISABLED BECAUSE TOKEN ALREADY OBTAINED
 # get Square OAuth token
@@ -32,37 +65,3 @@ squareRoutes = Blueprint('squareRoutes', __name__)
 #     )
 
 #     return api_res
-
-# obtainToken
-# inputs:
-#   - token: a properly formatted OAuth token that can be used to call the Square's ObtainToken endpoint
-# output: the token returned by Square's ObtainToken endpoint
-def obtainToken(token):
-
-    # create square sdk client
-    client = Client(
-        access_token=token,
-        environment='production'
-    )
-
-    # set up inputs to obtainToken endpoint
-    client_id = current_app.config['SQUARE_CLIENT_ID']
-    client_secret = current_app.config['SQUARE_CLIENT_SECRET']
-    grant_type = 'authorization_code'
-
-    # get the tokens from the square authentication API
-    result = client.o_auth.obtain_token(
-        body = {
-            "client_id": client_id,
-            "client_secret": client_secret,
-            "code": token,
-            "grant_type": grant_type
-        }
-    )
-
-    if result.is_success():
-        print(result.body)
-    elif result.is_error():
-        print(result.errors)
-
-    return result.body
