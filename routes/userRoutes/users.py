@@ -107,18 +107,16 @@ def createModel(user_id):
 
 # get_prediction
 # get a prediction from the ml model
-@userRoutes.route('/user/<user_id>/prediction', methods=['GET'])
+@userRoutes.route('/user/<user_id>/prediction/<date>', methods=['GET'])
 @cross_origin(headers=["Content-Type", "Authorization"])
 @requires_auth(audience=user_api_audience)
-def get_prediction(user_id):
+def get_prediction(user_id, date):
     # temporary check to make sure it is crabtrees user ID accessing his data
     if user_id != os.environ.get('CRABTREE_USER_ID'):
         return Response("{'Error': 'Forbidden (Non-Crabtree user)'}", status=403, mimetype='application/json')
     # check if the date is present
-    if 'date' not in request.form:
+    if 'date' == None:
         return Response("{'Error': 'Bad Request: Missing date field'}", status=400, mimetype='application/json')
-    else:
-        date = request.form.get('date')
 
     # make a prediction with the ml model
     prediction = make_prediction(date, 'customer_volume_model')
