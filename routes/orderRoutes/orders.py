@@ -13,7 +13,7 @@ orders_api_audience = os.environ.get('ORDERS_API_AUDIENCE')
 
 
 # Get orders from a passed in date range from db
-@orderRoutes.route('/orders', methods=['GET'])
+@orderRoutes.route('/orders', methods=['POST'])
 @cross_origin(headers=["Content-Type", "Authorization"])
 @requires_auth(audience=orders_api_audience)
 def get_order_groups():
