@@ -90,7 +90,7 @@ def _delete_user(user_id):
 @userRoutes.route('/user/<user_id>/model', methods=['POST'])
 @cross_origin(headers=["Content-Type", "Authorization"])
 @requires_auth(audience=user_api_audience)
-def createModel(user_id):
+def create_model(user_id):
     # temporary check to make sure it is crabtrees user ID accessing his data
     if user_id != os.environ.get('CRABTREE_USER_ID'):
         return {
@@ -107,20 +107,35 @@ def createModel(user_id):
 
 # get_prediction
 # get a prediction from the ml model
-@userRoutes.route('/user/<user_id>/prediction/<date>', methods=['GET'])
+@userRoutes.route('/user/<user_id>/prediction/<from_date>/<to_date>', methods=['GET'])
 @cross_origin(headers=["Content-Type", "Authorization"])
 @requires_auth(audience=user_api_audience)
-def get_prediction(user_id, date):
+def get_prediction(user_id, from_date, to_date):
     # temporary check to make sure it is crabtrees user ID accessing his data
     if user_id != os.environ.get('CRABTREE_USER_ID'):
         return Response("{'Error': 'Forbidden (Non-Crabtree user)'}", status=403, mimetype='application/json')
     # check if the date is present
-    if 'date' == None:
-        return Response("{'Error': 'Bad Request: Missing date field'}", status=400, mimetype='application/json')
+    if 'from_date' == None:
+        return Response("{'Error': 'Bad Request: Missing from_date field'}", status=400, mimetype='application/json')
+    if 'to_date' == None:
+        return Response("{'Error': 'Bad Request: Missing to_date field'}", status=400, mimetype='application/json')
 
-    # make a prediction with the ml model
-    prediction = make_prediction(date, 'customer_volume_model')
+    # cast the date string to a date
+    from_date = datetime.strptime(from_date, '%Y-%m-%d').date()
+    to_date = datetime.strptime(to_date, '%Y-%m-%d').date()
 
-    return {
-        'prediction': prediction[0]
-    }
+    if from_date > to_date:
+        return Response("{'Error': 'Bad Request: from_date is greater than to_date'}", status=400, mimetype='application/json')
+
+    # cast to datetime so the column conversions work in make_prediction()
+    time = datetime.min.time()
+    from_date = datetime.combine(from_date, time)
+    to_date = datetime.combine(to_date, time)
+
+    prediction_dates = {}
+    while from_date <= to_date:
+        # make a prediction with the ml model
+        prediction_dates[from_date] = make_prediction(from_date, 'customer_volume_model')
+        from_date = from_date + timedelta(days=1)
+
+    return prediction_dates
