@@ -108,7 +108,9 @@ def make_prediction(dates, model_name):
 
         predictions_df = predictions_df.append(df)
 
+    res = model.predict(predictions_df.values)
+
     # free memory
     model = None
 
-    return model.predict(predictions_df.values)
+    return res
